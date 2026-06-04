@@ -10,7 +10,7 @@ const supabaseClient = supabase.createClient(
 let allVideos = [];
 let filteredVideos = [];
 let currentPage = 1;
-const itemsPerPage = 10;
+const itemsPerPage = 5;
 let currentCategory = 'All';
 
 /**
