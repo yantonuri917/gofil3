@@ -9,7 +9,7 @@ const supabaseClient = supabase.createClient(
 // Variabel Utama
 let allVideos = [];
 let currentPage = 1;
-const itemsPerPage = 10;
+const itemsPerPage = 5;
 
 /**
  * Logika Tab Terbalik (Iklan)
