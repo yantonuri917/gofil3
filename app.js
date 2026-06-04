@@ -8,10 +8,8 @@ const supabaseClient = supabase.createClient(
 
 // Variabel Utama
 let allVideos = [];
-let filteredVideos = [];
 let currentPage = 1;
-const itemsPerPage = 5;
-let currentCategory = 'All';
+const itemsPerPage = 10;
 
 /**
  * Logika Tab Terbalik (Iklan)
@@ -23,61 +21,43 @@ function handlePlay(id, type, url) {
 }
 
 /**
- * Mengambil data dari database
+ * Ambil data dan tampilkan
  */
 async function fetchAndRenderVideos() {
     const { data } = await supabaseClient.from('videos_list').select('*');
     allVideos = data || [];
-    filteredVideos = allVideos;
-    renderAll();
+    renderPage();
 }
 
 /**
- * Render Utama: Filter, List Video, dan Paginasi
+ * Render Daftar File & Paginasi
  */
-function renderAll() {
+function renderPage() {
     const container = document.getElementById('file-list-container');
     container.innerHTML = '';
-    
-    // 1. Render Tombol Filter Otomatis
-    const categories = ['All', ...new Set(allVideos.map(v => v.category).filter(Boolean))];
-    const filterDiv = document.createElement('div');
-    filterDiv.className = "flex gap-2 p-4 justify-center bg-gray-900 border-b border-gray-700";
-    categories.forEach(cat => {
-        const btn = document.createElement('button');
-        btn.innerText = cat;
-        btn.className = `px-5 py-1.5 rounded-full text-sm font-medium ${currentCategory === cat ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-blue-500 transition`;
-        btn.onclick = () => { currentCategory = cat; currentPage = 1; filterData(); };
-        filterDiv.appendChild(btn);
-    });
-    container.appendChild(filterDiv);
 
-    // 2. Render List Video
     const start = (currentPage - 1) * itemsPerPage;
-    const paginatedItems = filteredVideos.slice(start, start + itemsPerPage);
-    
+    const paginatedItems = allVideos.slice(start, start + itemsPerPage);
+
     paginatedItems.forEach(video => {
         const type = video.url.includes('embed') ? 'embed' : 'mp4';
         const row = document.createElement('div');
         row.className = "flex items-center gap-6 p-5 border-b border-gray-700 hover:bg-gray-800 transition";
         row.innerHTML = `
+            <input type="checkbox" class="w-5 h-5 hidden md:block">
+            <i class="fas fa-file-video text-blue-500 text-2xl"></i>
             <div class="bg-black rounded-lg border-2 border-gray-600 cursor-pointer overflow-hidden flex items-center justify-center shrink-0 shadow-xl" 
                  style="width: 180px; height: 135px;" onclick="handlePlay('${video.id}', '${type}', '${video.url}')">
                  <video src="${video.url}" class="w-full h-full" style="object-fit: contain;"></video>
             </div>
-            <div class="flex-1 min-w-0">
-                <h3 class="text-lg text-gray-100 font-semibold truncate">${video.name}</h3>
-                <span class="text-xs text-gray-500 uppercase tracking-widest">${video.category || 'Uncategorized'}</span>
-            </div>
+            <span class="flex-1 text-lg text-gray-100 font-semibold truncate pl-2">${video.name}</span>
             <button onclick="handlePlay('${video.id}', '${type}', '${video.url}')" class="text-blue-400 hover:text-white text-2xl pr-4"><i class="fas fa-play-circle"></i></button>
         `;
         container.appendChild(row);
     });
 
-    // 3. Render Paginasi
     renderPagination();
 
-    // Auto-open modal jika ada parameter ?play=...
     const params = new URLSearchParams(window.location.search);
     const playId = params.get('play');
     if (playId) {
@@ -86,14 +66,9 @@ function renderAll() {
     }
 }
 
-function filterData() {
-    filteredVideos = currentCategory === 'All' ? allVideos : allVideos.filter(v => v.category === currentCategory);
-    renderAll();
-}
-
 function renderPagination() {
     const container = document.getElementById('file-list-container');
-    const totalPages = Math.ceil(filteredVideos.length / itemsPerPage);
+    const totalPages = Math.ceil(allVideos.length / itemsPerPage);
     if (totalPages <= 1) return;
     
     const nav = document.createElement('div');
@@ -102,7 +77,7 @@ function renderPagination() {
         const btn = document.createElement('button');
         btn.innerText = i;
         btn.className = `px-4 py-2 rounded ${currentPage === i ? 'bg-blue-600' : 'bg-gray-700'} text-white font-bold`;
-        btn.onclick = () => { currentPage = i; renderAll(); window.scrollTo(0, 0); };
+        btn.onclick = () => { currentPage = i; renderPage(); window.scrollTo(0, 0); };
         nav.appendChild(btn);
     }
     container.appendChild(nav);
