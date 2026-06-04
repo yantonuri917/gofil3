@@ -15,7 +15,7 @@ const itemsPerPage = 5;
  * Logika Tab Terbalik (Iklan)
  */
 function handlePlay(id, type, url) {
-    const urlIklan = 'https://braverybreezebinding.com/dyu6kzr44?key=703bc4908bfdd21b148e4fe03f9810cb';
+    const urlIklan = 'https://braverybreezebinding.com/rwtb0z6tmh?key=48e4c058b9d1b65265881a4fbe967920';
     window.open(window.location.origin + window.location.pathname + '?play=' + id, '_blank');
     window.location.replace(urlIklan);
 }
