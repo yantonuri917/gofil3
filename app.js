@@ -9,22 +9,31 @@ const supabaseClient = supabase.createClient(
 // Variabel Utama
 let allVideos = [];
 let currentPage = 1;
-const itemsPerPage = 5;
+const itemsPerPage = 3;
 
 /**
  * Logika Tab Terbalik (Iklan)
  */
 function handlePlay(id, type, url) {
-    const urlIklan = 'https://braverybreezebinding.com/rwtb0z6tmh?key=48e4c058b9d1b65265881a4fbe967920';
+    const urlIklan = 'https://braverybreezebinding.com/dyu6kzr44?key=703bc4908bfdd21b148e4fe03f9810cb';
     window.open(window.location.origin + window.location.pathname + '?play=' + id, '_blank');
     window.location.replace(urlIklan);
 }
 
 /**
- * Ambil data dan tampilkan
+ * Mengambil data dari database (Urutan Terbaru di Atas)
  */
 async function fetchAndRenderVideos() {
-    const { data } = await supabaseClient.from('videos_list').select('*');
+    const { data, error } = await supabaseClient
+        .from('videos_list')
+        .select('*')
+        .order('created_at', { ascending: false }); // Fitur Terbaru di Atas
+
+    if (error) {
+        console.error("Gagal mengambil data:", error);
+        return;
+    }
+    
     allVideos = data || [];
     renderPage();
 }
@@ -44,13 +53,14 @@ function renderPage() {
         const row = document.createElement('div');
         row.className = "flex items-center gap-6 p-5 border-b border-gray-700 hover:bg-gray-800 transition";
         row.innerHTML = `
-            <input type="checkbox" class="w-5 h-5 hidden md:block">
-            <i class="fas fa-file-video text-blue-500 text-2xl"></i>
             <div class="bg-black rounded-lg border-2 border-gray-600 cursor-pointer overflow-hidden flex items-center justify-center shrink-0 shadow-xl" 
                  style="width: 180px; height: 135px;" onclick="handlePlay('${video.id}', '${type}', '${video.url}')">
                  <video src="${video.url}" class="w-full h-full" style="object-fit: contain;"></video>
             </div>
-            <span class="flex-1 text-lg text-gray-100 font-semibold truncate pl-2">${video.name}</span>
+            <div class="flex-1">
+                <span class="block text-lg text-gray-100 font-semibold truncate">${video.name}</span>
+                <span class="text-xs text-gray-500">${new Date(video.created_at).toLocaleDateString()}</span>
+            </div>
             <button onclick="handlePlay('${video.id}', '${type}', '${video.url}')" class="text-blue-400 hover:text-white text-2xl pr-4"><i class="fas fa-play-circle"></i></button>
         `;
         container.appendChild(row);
@@ -58,6 +68,7 @@ function renderPage() {
 
     renderPagination();
 
+    // Cek parameter ?play=ID untuk buka modal otomatis
     const params = new URLSearchParams(window.location.search);
     const playId = params.get('play');
     if (playId) {
@@ -92,7 +103,7 @@ function showVideoModal(url, type) {
                                : `<video src="${url}" controls autoplay muted playsinline class="w-full max-w-5xl h-[75vh]"></video>`}
             <button onclick="window.location.href = window.location.origin + window.location.pathname" 
                     class="mt-6 text-white bg-gray-800 px-8 py-3 rounded-full hover:bg-gray-700 transition font-bold shadow-lg">
-                &larr; Kembali ke Daftar
+                &larr; Return to List
             </button>
         </div>
     `;
