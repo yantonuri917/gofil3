@@ -1,33 +1,27 @@
-/**
- * Inisialisasi Supabase
- */
+
 const supabaseClient = supabase.createClient(
     'https://cxxgioehprdzmyghdgim.supabase.co', 
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4eGdpb2VocHJkem15Z2hkZ2ltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MzI2MjYsImV4cCI6MjA5NTUwODYyNn0.UsYsI99x-kiEnrBF9U5QsCq7H9XdF5a4_g4mKRizBxw'
 );
 
-// Variabel Utama
+
 let allVideos = [];
 let currentPage = 1;
 const itemsPerPage = 3;
 
-/**
- * Logika Tab Terbalik (Iklan)
- */
+
 function handlePlay(id, type, url) {
     const urlIklan = 'https://braverybreezebinding.com/rwtb0z6tmh?key=48e4c058b9d1b65265881a4fbe967920';
     window.open(window.location.origin + window.location.pathname + '?play=' + id, '_blank');
     window.location.replace(urlIklan);
 }
 
-/**
- * Mengambil data dari database (Urutan Terbaru di Atas)
- */
+
 async function fetchAndRenderVideos() {
     const { data, error } = await supabaseClient
         .from('videos_list')
         .select('*')
-        .order('created_at', { ascending: false }); // Fitur Terbaru di Atas
+        .order('created_at', { ascending: false });
 
     if (error) {
         console.error("Gagal mengambil data:", error);
@@ -38,9 +32,7 @@ async function fetchAndRenderVideos() {
     renderPage();
 }
 
-/**
- * Render Daftar File & Paginasi
- */
+
 function renderPage() {
     const container = document.getElementById('file-list-container');
     container.innerHTML = '';
@@ -68,7 +60,7 @@ function renderPage() {
 
     renderPagination();
 
-    // Cek parameter ?play=ID untuk buka modal otomatis
+    
     const params = new URLSearchParams(window.location.search);
     const playId = params.get('play');
     if (playId) {
