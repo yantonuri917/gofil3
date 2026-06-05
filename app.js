@@ -1,10 +1,12 @@
-
+/**
+ * Inisialisasi Supabase
+ */
 const supabaseClient = supabase.createClient(
     'https://cxxgioehprdzmyghdgim.supabase.co', 
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4eGdpb2VocHJkem15Z2hkZ2ltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MzI2MjYsImV4cCI6MjA5NTUwODYyNn0.UsYsI99x-kiEnrBF9U5QsCq7H9XdF5a4_g4mKRizBxw'
 );
 
-
+// Variabel Utama
 let allVideos = [];
 let currentPage = 1;
 const itemsPerPage = 3;
@@ -89,10 +91,11 @@ function renderPagination() {
 function showVideoModal(url, type) {
     const modal = document.createElement('div');
     modal.className = "fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50 p-4";
+    // Menambahkan atribut controlsList="nodownload" di bawah ini
     modal.innerHTML = `
         <div class="w-full flex flex-col items-center">
             ${type === 'embed' ? `<iframe src="${url}" class="w-full max-w-5xl h-[75vh]" allow="autoplay; fullscreen" allowfullscreen></iframe>` 
-                               : `<video src="${url}" controls autoplay muted playsinline class="w-full max-w-5xl h-[75vh]"></video>`}
+                               : `<video src="${url}" controls controlsList="nodownload" autoplay muted playsinline class="w-full max-w-5xl h-[75vh]"></video>`}
             <button onclick="window.location.href = window.location.origin + window.location.pathname" 
                     class="mt-6 text-white bg-gray-800 px-8 py-3 rounded-full hover:bg-gray-700 transition font-bold shadow-lg">
                 &larr; Return to List
