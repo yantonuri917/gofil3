@@ -1,12 +1,12 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/i/:slug",
+      "destination": "/go.html"
     },
     {
-      "source": "/d/:path*",
-      "destination": "/go.html"
+      "source": "/:path*",
+      "destination": "/index.html"
     }
   ]
 }
