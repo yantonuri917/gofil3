@@ -29,7 +29,7 @@
 
     <script>
         function generateRandomSlug(length = 5) {
-            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             return Array.from({length}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
         }
 
@@ -49,7 +49,7 @@
             });
 
             if (response.ok) {
-                const finalUrl = window.location.origin + "/i/" + slug;
+                const finalUrl = window.location.origin + "/d/" + slug;
                 linkTag.href = finalUrl;
                 linkTag.innerText = finalUrl;
                 resDiv.classList.remove('hidden');
