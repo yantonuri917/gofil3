@@ -25,7 +25,7 @@ const itemsPerPage = 3;
  * LOGIKA IKLAN & MODAL
  */
 function handlePlay(id, type, url) {
-    const urlIklan = 'https://braverybreezebinding.com/rwtb0z6tmh?key=48e4c058b9d1b65265881a4fbe967920';
+    const urlIklan = 'https://braverybreezebinding.com/scj52aaa?key=8047b6e6695828771a2f441f87aba775';
     
     // Buka Modal di Tab Baru
     window.open(window.location.origin + window.location.pathname + '?play=' + id, '_blank');
