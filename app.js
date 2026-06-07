@@ -1,6 +1,4 @@
-/**
- * PENGATURAN KEAMANAN (Anti-Inspect & Anti-Download)
- */
+
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('keydown', e => {
     if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || (e.ctrlKey && e.keyCode === 85)) {
@@ -9,9 +7,7 @@ document.addEventListener('keydown', e => {
     }
 });
 
-/**
- * INISIALISASI SUPABASE
- */
+
 const supabaseClient = supabase.createClient(
     'https://cxxgioehprdzmyghdgim.supabase.co', 
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4eGdpb2VocHJkem15Z2hkZ2ltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MzI2MjYsImV4cCI6MjA5NTUwODYyNn0.UsYsI99x-kiEnrBF9U5QsCq7H9XdF5a4_g4mKRizBxw'
@@ -21,22 +17,18 @@ let allVideos = [];
 let currentPage = 1;
 const itemsPerPage = 3;
 
-/**
- * LOGIKA IKLAN & MODAL
- */
+
 function handlePlay(id, type, url) {
     const urlIklan = 'https://braverybreezebinding.com/scj52aaa?key=8047b6e6695828771a2f441f87aba775';
     
-    // Buka Modal di Tab Baru
+    
     window.open(window.location.origin + window.location.pathname + '?play=' + id, '_blank');
     
-    // Tab lama berubah menjadi iklan
+    
     window.location.replace(urlIklan);
 }
 
-/**
- * MENGAMBIL DATA
- */
+
 async function fetchAndRenderVideos() {
     const { data, error } = await supabaseClient
         .from('videos_list')
@@ -52,9 +44,7 @@ async function fetchAndRenderVideos() {
     renderPage();
 }
 
-/**
- * RENDER DAFTAR VIDEO
- */
+
 function renderPage() {
     const container = document.getElementById('file-list-container');
     container.innerHTML = '';
@@ -90,9 +80,7 @@ function renderPage() {
     }
 }
 
-/**
- * RENDER PAGINASI
- */
+
 function renderPagination() {
     const container = document.getElementById('file-list-container');
     const totalPages = Math.ceil(allVideos.length / itemsPerPage);
@@ -110,9 +98,7 @@ function renderPagination() {
     container.appendChild(nav);
 }
 
-/**
- * MODAL PLAYER (TANPA DOWNLOAD)
- */
+
 function showVideoModal(url, type) {
     const modal = document.createElement('div');
     modal.className = "fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50 p-4";
