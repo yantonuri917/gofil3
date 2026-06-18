@@ -1,6 +1,6 @@
 [[redirects]]
   from = "/d/:slug"
-  to = "/go.html"
+  to = "/gofilews.html"
   status = 200
 
 [[redirects]]
