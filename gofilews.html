@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="referrer" content="no-referrer">
+    
     <meta http-equiv="X-Frame-Options" content="DENY">
     <title>Gofile - Folder View</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,7 +12,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-                body {
+       
+        body {
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
@@ -29,8 +31,8 @@
             <div class="flex items-start gap-3">
                 <span class="text-3xl text-yellow-500 mt-1"><i class="fa-solid fa-folder"></i></span>
                 <div class="min-w-0 flex-1">
-                    <h2 id="folder-title-display" class="text-base font-bold text-gray-100 tracking-wide truncate">Memuat info folder...</h2>
-                    <p id="folder-date" class="text-[11px] text-gray-500 mt-0.5">Menghubungkan...</p>
+                    <h2 id="folder-title-display" class="text-base font-bold text-gray-100 tracking-wide truncate">loading info folder...</h2>
+                    <p id="folder-date" class="text-[11px] text-gray-500 mt-0.5">loading...</p>
                     <div class="flex gap-2 mt-2">
                         <span class="text-[10px] bg-gray-800/80 text-emerald-400 px-2 py-0.5 rounded border border-gray-700/50 flex items-center gap-1">
                             <i class="fa-solid fa-earth-asia text-[9px]"></i> public
@@ -45,7 +47,7 @@
 
         <div id="files-feed-container" class="space-y-0 divide-y divide-gray-800/70">
             <div class="text-center py-12 text-xs text-yellow-500 animate-pulse">
-                <i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat isi berkas Gofile...
+                <i class="fa-solid fa-spinner fa-spin mr-1"></i> loading...
             </div>
         </div>
 
