@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="referrer" content="no-referrer">
+    <!-- PROTEKSI KEAMANAN: Mencegah halaman disisipkan ke iframe situs asing (Anti-Clickjacking) -->
     <meta http-equiv="X-Frame-Options" content="DENY">
     <title>Gofile - Folder View</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        
+        /* PROTEKSI UI: Mencegah pengguna memblok/menyorot teks atau gambar di dalam web */
         body {
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -20,18 +21,18 @@
         }
     </style>
 </head>
-
+<!-- PROTEKSI KEAMANAN: Mematikan fungsi klik kanan di seluruh area halaman web -->
 <body class="bg-[#0b0f19] text-gray-200 min-h-screen flex flex-col items-center p-3 sm:p-6" oncontextmenu="return false;">
 
-    
+    <!-- Wadah Konten Utama Gofile (Iklan atas akan disuntikkan tepat di atas div ini secara otomatis lewat skrip) -->
     <div class="max-w-3xl w-full bg-[#111827] rounded-xl p-4 sm:p-5 shadow-2xl border border-gray-800/80 mt-2 overflow-hidden">
         
         <div class="border-b border-gray-800 pb-4 mb-4">
             <div class="flex items-start gap-3">
                 <span class="text-3xl text-yellow-500 mt-1"><i class="fa-solid fa-folder"></i></span>
                 <div class="min-w-0 flex-1">
-                    <h2 id="folder-title-display" class="text-base font-bold text-gray-100 tracking-wide truncate">looding folder...</h2>
-                    <p id="folder-date" class="text-[11px] text-gray-500 mt-0.5">loading...</p>
+                    <h2 id="folder-title-display" class="text-base font-bold text-gray-100 tracking-wide truncate">Memuat info folder...</h2>
+                    <p id="folder-date" class="text-[11px] text-gray-500 mt-0.5">Menghubungkan...</p>
                     <div class="flex gap-2 mt-2">
                         <span class="text-[10px] bg-gray-800/80 text-emerald-400 px-2 py-0.5 rounded border border-gray-700/50 flex items-center gap-1">
                             <i class="fa-solid fa-earth-asia text-[9px]"></i> public
@@ -46,7 +47,7 @@
 
         <div id="files-feed-container" class="space-y-0 divide-y divide-gray-800/70">
             <div class="text-center py-12 text-xs text-yellow-500 animate-pulse">
-                <i class="fa-solid fa-spinner fa-spin mr-1"></i> loading...
+                <i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat isi berkas Gofile...
             </div>
         </div>
 
@@ -56,261 +57,9 @@
     </div>
 
     <script>
-        const SUPABASE_URL = "https://ehhrvswzhirrnrqxmxae.supabase.co"; 
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVoaHJ2c3d6aGlycm5ycXhteGFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjg2NDcsImV4cCI6MjA5NTgwNDY0N30.75vZs3Rn6j7YSlInHpGDN39OGjhywcEBv8j-hawyOlY";
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        const videoSlug = window.location.pathname.split('/').filter(Boolean).pop();
-
-        const folderTitleDisplay = document.getElementById('folder-title-display');
-        const folderDate = document.getElementById('folder-date');
-        const filesFeedContainer = document.getElementById('files-feed-container');
-        const fileCountSpan = document.getElementById('file-count');
-        const totalItemsFooter = document.getElementById('total-items-footer');
-
-        let videoUrlsCache = {};
-        const DOWNLOAD_REDIRECT_URL = "https://braverybreezebinding.com/dyu6kzr44?key=703bc4908bfdd21b148e4fe03f9810cb";
-
-        
-        document.addEventListener('keydown', function(e) {
-            if (
-                e.key === 'F12' || 
-                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
-                (e.ctrlKey && e.key === 'u')
-            ) {
-                e.preventDefault();
-                return false;
-            }
-        });
-
-        
-        function pasangIklanAtas() {
-            const wadahIklan = document.createElement('div');
-            wadahIklan.className = "w-full max-w-md mx-auto mb-1 mt-1 text-center scale-95 opacity-90 overflow-hidden";
-
-            const scriptIklan = document.createElement('script');
-            scriptIklan.async = true;
-            scriptIklan.setAttribute('data-cfasync', 'false');
-            scriptIklan.src = "https://braverybreezebinding.com/122b006ae61ef549a738f7e587027d5a/invoke.js";
-
-            const spotIklan = document.createElement('div');
-            spotIklan.id = "container-122b006ae61ef549a738f7e587027d5a";
-
-            wadahIklan.appendChild(scriptIklan);
-            wadahIklan.appendChild(spotIklan);
-            document.body.insertBefore(wadahIklan, document.body.firstChild);
-        }
-
-        async function loadGofileFeed() {
-            if (!videoSlug || videoSlug === 'view.html') {
-                folderTitleDisplay.textContent = "Error: Link Tidak Valid";
-                filesFeedContainer.innerHTML = `<p class="text-red-400 text-xs text-center py-4">Parameter token slug hilang atau tidak valid.</p>`;
-                return;
-            }
-
-            try {
-                const { data: packageData, error: packageError } = await supabaseClient
-                    .from('video_packages')
-                    .select('*')
-                    .eq('slug', videoSlug)
-                    .single();
-
-                if (packageError || !packageData) {
-                    folderTitleDisplay.textContent = "Folder Not Found";
-                    filesFeedContainer.innerHTML = `<p class="text-red-400 text-xs text-center py-4">Sistem tidak menemukan folder tersebut.</p>`;
-                    return;
-                }
-
-                folderTitleDisplay.textContent = packageData.title;
-                if (packageData.created_at) {
-                    const tanggal = new Date(packageData.created_at);
-                    folderDate.textContent = `${tanggal.toLocaleDateString('id-ID')}, ${tanggal.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})}`;
-                }
-
-                const { data: itemsData, error: itemsError } = await supabaseClient
-                    .from('video_items')
-                    .select('*')
-                    .eq('package_id', packageData.id);
-
-                if (itemsError || !itemsData || itemsData.length === 0) {
-                    filesFeedContainer.innerHTML = `<p class="text-gray-500 text-xs text-center py-8">Folder kosong (Belum ada file diunggah).</p>`;
-                    return;
-                }
-
-                const totalFiles = itemsData.length;
-                fileCountSpan.textContent = `Total ${totalFiles} items`;
-                totalItemsFooter.textContent = totalFiles;
-                filesFeedContainer.innerHTML = "";
-
-                itemsData.forEach((item, index) => {
-                    const fullUrl = item.video_url;
-                    videoUrlsCache[item.id] = fullUrl; 
-                    
-            
-                    let baseCleanUrl = fullUrl.split('#')[0];
-                    let fileName = baseCleanUrl.split('/').pop().split('?')[0] || `Video_File_${index + 1}.mp4`;
-                    
-                    if (fullUrl.includes('youtube.com') || fullUrl.includes('youtu.be')) {
-                        fileName = `YouTube_Stream_Part_${index + 1}.mp4`;
-                    }
-
-                    const fakeSize = ((index + 2) * 21.4).toFixed(1) + " MB";
-                    const fakeDownloads = Math.floor(Math.random() * (50000 - 1000 + 1)) + 1000;
-
-                    let itemDateStr = folderDate.textContent;
-                    if (item.created_at) {
-                        const tglItem = new Date(item.created_at);
-                        itemDateStr = `${tglItem.getDate()}/${tglItem.getMonth()+1}/${tglItem.getFullYear()}, ${tglItem.getHours().toString().padStart(2, '0')}.${tglItem.getMinutes().toString().padStart(2, '0')}.${tglItem.getSeconds().toString().padStart(2, '0')}`;
-                    }
-
-                    const card = document.createElement('div');
-                    card.className = "py-4 flex flex-col w-full";
-
-                    card.innerHTML = `
-                        <div class="flex items-start justify-between w-full gap-3">
-                            
-                            <div class="flex items-center gap-2 flex-shrink-0 mt-1">
-                                <input type="checkbox" class="w-3.5 h-3.5 rounded bg-gray-900 border-gray-700 text-blue-600 focus:ring-0 cursor-pointer">
-                                <span class="text-blue-500 text-base"><i class="fa-solid fa-file-video"></i></span>
-                            </div>
-
-                            <div class="flex-1 min-w-0 flex flex-col">
-                                <div class="mb-3">
-                                    <h3 class="text-xs font-semibold text-gray-200 tracking-wide break-all line-clamp-1">${fileName}</h3>
-                                    <p class="text-[10px] text-gray-500 mt-0.5">${itemDateStr}</p>
-                                    <p class="text-[10px] text-gray-500">${fakeSize}</p>
-                                    <p class="text-[10px] text-gray-500">${fakeDownloads.toLocaleString('id-ID')} downloads</p>
-                                </div>
-
-                                <div id="mini-viewport-${item.id}" onclick="handleThumbnailClick(event, '${item.id}', '${fileName}')" class="w-full max-w-[160px] sm:max-w-[180px] rounded bg-black border border-gray-800/60 flex items-center justify-center relative overflow-hidden cursor-pointer hover:opacity-90 transition-all duration-150" style="display: block;">
-                                    ${renderThumbnailPlayer(fullUrl)}
-                                </div>
-                            </div>
-
-                            <div class="flex items-center gap-1.5 flex-shrink-0 mt-1">
-                                <button type="button" id="play-btn-${item.id}" data-status="paused" onclick="handleButtonClick(event, '${item.id}', '${fileName}')" class="w-8 h-8 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700/80 flex items-center justify-center text-xs" title="Play Video">
-                                    <i class="fa-solid fa-play"></i>
-                                </button>
-                                <a href="${DOWNLOAD_REDIRECT_URL}" target="_blank" class="w-8 h-8 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700/80 flex items-center justify-center text-xs" title="Download">
-                                    <i class="fa-solid fa-download"></i>
-                                </a>
-                                <button type="button" class="w-8 h-8 rounded bg-gray-800 hover:bg-gray-700 text-gray-400 border border-gray-700/80 flex items-center justify-center text-xs">
-                                    <i class="fa-solid fa-ellipsis-vertical"></i>
-                                </button>
-                            </div>
-
-                        </div>
-
-                        <div id="expanded-zone-${item.id}" class="w-auto hidden mt-3 bg-black -mx-4 sm:-mx-5 border-y border-gray-800 aspect-video shadow-2xl"></div>
-                    `;
-
-                    filesFeedContainer.appendChild(card);
-                });
-
-            } catch (err) {
-                console.error(err);
-                folderTitleDisplay.textContent = "Error Jaringan";
-            }
-        }
-
-        function renderThumbnailPlayer(url) {
-            if (url.match(/\.(mp4|webm|ogg)/i) || url.includes('supabase.co/storage')) {
-                
-                const thumbnailUrl = url.includes('#t=') ? url : `${url}#t=2`;
-                
-                return `<video preload="metadata" muted playsinline oncontextmenu="return false;" class="w-full h-auto max-h-[240px] aspect-auto object-contain pointer-events-none select-none"><source src="${thumbnailUrl}" type="video/mp4"></video>`;
-            } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                let embedUrl = url;
-                if(embedUrl.includes('watch?v=')) embedUrl = embedUrl.replace('watch?v=', 'embed/');
-                if(embedUrl.includes('youtu.be/')) embedUrl = embedUrl.replace('youtu.be/', 'youtube.com/embed/');
-                return `<div class="w-full aspect-video"><iframe src="${embedUrl}" class="w-full h-full pointer-events-none opacity-50" frameborder="0"></iframe></div>`;
-            } else {
-                return `<div class="p-8"><i class="fa-solid fa-video text-gray-700 text-xl"></i></div>`;
-            }
-        }
-
-        function handleThumbnailClick(e, id, title) {
-            e.preventDefault();
-            e.stopPropagation();
-            const btn = document.getElementById(`play-btn-${id}`);
-            if (btn.getAttribute('data-status') !== 'playing') {
-                playVideo(id, title);
-            }
-        }
-
-        function handleButtonClick(e, id, title) {
-            e.preventDefault();
-            e.stopPropagation();
-            const btn = document.getElementById(`play-btn-${id}`);
-            const currentStatus = btn.getAttribute('data-status');
-            
-            if (currentStatus === 'playing') {
-                closeVideo(id);
-            } else {
-                playVideo(id, title);
-            }
-        }
-
-        function playVideo(id, title) {
-            const btn = document.getElementById(`play-btn-${id}`);
-            const miniBox = document.getElementById(`mini-viewport-${id}`);
-            const bigPlayerZone = document.getElementById(`expanded-zone-${id}`);
-            const fileUrl = videoUrlsCache[id];
-
-            btn.setAttribute('data-status', 'playing');
-            btn.innerHTML = `<i class="fa-solid fa-xmark text-sm"></i>`; 
-            btn.className = "w-8 h-8 rounded bg-red-600 hover:bg-red-700 text-white border border-red-500 flex items-center justify-center text-xs shadow-md";
-
-            miniBox.style.setProperty('display', 'none', 'important'); 
-            bigPlayerZone.classList.remove('hidden'); 
-
-            if (fileUrl.match(/\.(mp4|webm|ogg)/i) || fileUrl.includes('supabase.co/storage')) {
-                
-                const playUrl = fileUrl.split('#')[0];
-                bigPlayerZone.innerHTML = `<video controls autoplay playsinline controlsList="nodownload" oncontextmenu="return false;" class="w-full h-full object-contain select-none"><source src="${playUrl}" type="video/mp4"></video>`;
-            } else if (fileUrl.includes('youtube.com') || fileUrl.includes('youtu.be')) {
-                let embed = fileUrl;
-                if(embed.includes('watch?v=')) embed = embed.replace('watch?v=', 'embed/');
-                if(embed.includes('youtu.be/')) embed = embed.replace('youtu.be/', 'youtube.com/embed/');
-                embed += embed.includes('?') ? "&autoplay=1" : "?autoplay=1";
-                bigPlayerZone.innerHTML = `<iframe src="${embed}" class="w-full h-full" frameborder="0" allow="autoplay" allowfullscreen></iframe>`;
-            } else {
-                bigPlayerZone.innerHTML = `
-                    <div class="w-full h-full flex flex-col items-center justify-center bg-gray-900 p-4">
-                        <p class="text-[11px] text-gray-400 mb-2">${title}</p>
-                        <a href="${fileUrl}" target="_blank" class="bg-blue-600 text-white text-[10px] py-1.5 px-3 rounded font-bold">Buka Sumber</a>
-                    </div>`;
-            }
-
-            setTimeout(() => {
-                bigPlayerZone.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center'
-                });
-            }, 150);
-        }
-
-        function closeVideo(id) {
-            const btn = document.getElementById(`play-btn-${id}`);
-            const miniBox = document.getElementById(`mini-viewport-${id}`);
-            const bigPlayerZone = document.getElementById(`expanded-zone-${id}`);
-
-            bigPlayerZone.innerHTML = ""; 
-            bigPlayerZone.classList.add('hidden'); 
-
-            btn.setAttribute('data-status', 'paused');
-            btn.innerHTML = `<i class="fa-solid fa-play"></i>`; 
-            btn.className = "w-8 h-8 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700/80 flex items-center justify-center text-xs";
-            
-            miniBox.style.setProperty('display', 'block', 'important'); 
-        }
-
-        
-        pasangIklanAtas();
-        loadGofileFeed();
+        const _0x2063e1=_0x1cc5;(function(_0x18fae7,_0xaf02aa){const _0x12b4c3=_0x1cc5,_0x1a97cc=_0x18fae7();while(!![]){try{const _0x18a666=parseInt(_0x12b4c3(0x210))/0x1+-parseInt(_0x12b4c3(0x21e))/0x2+-parseInt(_0x12b4c3(0x1ee))/0x3*(-parseInt(_0x12b4c3(0x21b))/0x4)+-parseInt(_0x12b4c3(0x25b))/0x5*(-parseInt(_0x12b4c3(0x1fa))/0x6)+-parseInt(_0x12b4c3(0x24e))/0x7*(-parseInt(_0x12b4c3(0x241))/0x8)+parseInt(_0x12b4c3(0x1f8))/0x9+-parseInt(_0x12b4c3(0x1f2))/0xa;if(_0x18a666===_0xaf02aa)break;else _0x1a97cc['push'](_0x1a97cc['shift']());}catch(_0x2c7e93){_0x1a97cc['push'](_0x1a97cc['shift']());}}}(_0x5d9b,0x978f7));function _0x5d9b(){const _0x2eb578=['filter','center','folder-title-display','6181947CxqNZl','body','131082ucBIks','<i\x20class=\x22fa-solid\x20fa-xmark\x20text-sm\x22></i>','pop','created_at','addEventListener','className','getAttribute','</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20class=\x22text-[10px]\x20text-gray-500\x22>','ctrlKey','\x22\x20class=\x22w-full\x20h-full\x22\x20frameborder=\x220\x22\x20allow=\x22autoplay\x22\x20allowfullscreen></iframe>','Video_File_','&autoplay=1','false','appendChild','important','</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<a\x20href=\x22','\x20items','container-122b006ae61ef549a738f7e587027d5a','forEach','getHours','classList','style','1089794BUwAbU','slug','video_items','keydown','error','div','<div\x20class=\x22p-8\x22><i\x20class=\x22fa-solid\x20fa-video\x20text-gray-700\x20text-xl\x22></i></div>','youtube.com/embed/','key','getSeconds','preventDefault','2012OzKLkS','replace','none','320808aKPfqu','floor','youtube.com','stopPropagation','.mp4','w-8\x20h-8\x20rounded\x20bg-red-600\x20hover:bg-red-700\x20text-white\x20border\x20border-red-500\x20flex\x20items-center\x20justify-center\x20text-xs\x20shadow-md','paused','match','\x22\x20type=\x22video/mp4\x22></video>','\x27)\x22\x20class=\x22w-full\x20max-w-[160px]\x20sm:max-w-[180px]\x20rounded\x20bg-black\x20border\x20border-gray-800/60\x20flex\x20items-center\x20justify-center\x20relative\x20overflow-hidden\x20cursor-pointer\x20hover:opacity-90\x20transition-all\x20duration-150\x22\x20style=\x22display:\x20block;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','single','data-cfasync','toLocaleString','getElementById','<p\x20class=\x22text-gray-500\x20text-xs\x20text-center\x20py-8\x22>Folder\x20kosong\x20(Belum\x20ada\x20file\x20diunggah).</p>','src','watch?v=','video_packages','data-status','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22w-full\x20h-full\x20flex\x20flex-col\x20items-center\x20justify-center\x20bg-gray-900\x20p-4\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20class=\x22text-[11px]\x20text-gray-400\x20mb-2\x22>','setProperty','toFixed','createClient','hidden','embed/','Error:\x20Link\x20Tidak\x20Valid','display','https://braverybreezebinding.com/dyu6kzr44?key=703bc4908bfdd21b148e4fe03f9810cb','length','w-full\x20max-w-md\x20mx-auto\x20mb-1\x20mt-1\x20text-center\x20scale-95\x20opacity-90\x20overflow-hidden','mini-viewport-','Error\x20Jaringan','remove','\x22\x20target=\x22_blank\x22\x20class=\x22w-8\x20h-8\x20rounded\x20bg-gray-800\x20hover:bg-gray-700\x20text-gray-300\x20border\x20border-gray-700/80\x20flex\x20items-center\x20justify-center\x20text-xs\x22\x20title=\x22Download\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<i\x20class=\x22fa-solid\x20fa-download\x22></i>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</a>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20type=\x22button\x22\x20class=\x22w-8\x20h-8\x20rounded\x20bg-gray-800\x20hover:bg-gray-700\x20text-gray-400\x20border\x20border-gray-700/80\x20flex\x20items-center\x20justify-center\x20text-xs\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<i\x20class=\x22fa-solid\x20fa-ellipsis-vertical\x22></i>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22expanded-zone-','<video\x20controls\x20autoplay\x20playsinline\x20controlsList=\x22nodownload\x22\x20oncontextmenu=\x22return\x20false;\x22\x20class=\x22w-full\x20h-full\x20object-contain\x20select-none\x22><source\x20src=\x22','492872xddbvs','<iframe\x20src=\x22','total-items-footer','location','innerHTML','2-digit','#t=','\x22\x20onclick=\x22handleThumbnailClick(event,\x20\x27','<i\x20class=\x22fa-solid\x20fa-play\x22></i>','getFullYear','textContent','shiftKey','getDate','7AizZAD','getMinutes','YouTube_Stream_Part_','async','</h3>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20class=\x22text-[10px]\x20text-gray-500\x20mt-0.5\x22>','expanded-zone-','\x22\x20data-status=\x22paused\x22\x20onclick=\x22handleButtonClick(event,\x20\x27','<p\x20class=\x22text-red-400\x20text-xs\x20text-center\x20py-4\x22>Parameter\x20token\x20slug\x20hilang\x20atau\x20tidak\x20valid.</p>','scrollIntoView','\x22\x20target=\x22_blank\x22\x20class=\x22bg-blue-600\x20text-white\x20text-[10px]\x20py-1.5\x20px-3\x20rounded\x20font-bold\x22>Buka\x20Sumber</a>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>','id-ID','file-count','w-8\x20h-8\x20rounded\x20bg-gray-800\x20hover:bg-gray-700\x20text-gray-300\x20border\x20border-gray-700/80\x20flex\x20items-center\x20justify-center\x20text-xs','215agJxjY','\x27,\x20\x27','padStart','?autoplay=1','getMonth','youtu.be/','setAttribute','toString','files-feed-container','play-btn-','split','<video\x20preload=\x22metadata\x22\x20muted\x20playsinline\x20oncontextmenu=\x22return\x20false;\x22\x20class=\x22w-full\x20h-auto\x20max-h-[240px]\x20aspect-auto\x20object-contain\x20pointer-events-none\x20select-none\x22><source\x20src=\x22','pathname','supabase.co/storage','firstChild','includes','view.html','4698DQAnPt','playing','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVoaHJ2c3d6aGlycm5ycXhteGFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjg2NDcsImV4cCI6MjA5NTgwNDY0N30.75vZs3Rn6j7YSlInHpGDN39OGjhywcEBv8j-hawyOlY','createElement','27842100GRUaIE','https://ehhrvswzhirrnrqxmxae.supabase.co','Total\x20'];_0x5d9b=function(){return _0x2eb578;};return _0x5d9b();}function _0x1cc5(_0x85c2f0,_0x2702f9){_0x85c2f0=_0x85c2f0-0x1e1;const _0x5d9b68=_0x5d9b();let _0x1cc52a=_0x5d9b68[_0x85c2f0];return _0x1cc52a;}const SUPABASE_URL=_0x2063e1(0x1f3),SUPABASE_ANON_KEY=_0x2063e1(0x1f0),supabaseClient=supabase[_0x2063e1(0x234)](SUPABASE_URL,SUPABASE_ANON_KEY),videoSlug=window[_0x2063e1(0x244)][_0x2063e1(0x1e9)][_0x2063e1(0x1e7)]('/')[_0x2063e1(0x1f5)](Boolean)[_0x2063e1(0x1fc)](),folderTitleDisplay=document[_0x2063e1(0x22b)](_0x2063e1(0x1f7)),folderDate=document[_0x2063e1(0x22b)]('folder-date'),filesFeedContainer=document[_0x2063e1(0x22b)](_0x2063e1(0x1e5)),fileCountSpan=document[_0x2063e1(0x22b)](_0x2063e1(0x259)),totalItemsFooter=document[_0x2063e1(0x22b)](_0x2063e1(0x243));let videoUrlsCache={};const DOWNLOAD_REDIRECT_URL=_0x2063e1(0x239);document[_0x2063e1(0x1fe)](_0x2063e1(0x213),function(_0x5b80bf){const _0x3f1288=_0x2063e1;if(_0x5b80bf['key']==='F12'||_0x5b80bf[_0x3f1288(0x202)]&&_0x5b80bf[_0x3f1288(0x24c)]&&(_0x5b80bf[_0x3f1288(0x218)]==='I'||_0x5b80bf['key']==='J'||_0x5b80bf[_0x3f1288(0x218)]==='C')||_0x5b80bf['ctrlKey']&&_0x5b80bf[_0x3f1288(0x218)]==='u')return _0x5b80bf['preventDefault'](),![];});function pasangIklanAtas(){const _0x3fd841=_0x2063e1,_0x3cc602=document[_0x3fd841(0x1f1)](_0x3fd841(0x215));_0x3cc602[_0x3fd841(0x1ff)]=_0x3fd841(0x23b);const _0x2a83d3=document['createElement']('script');_0x2a83d3[_0x3fd841(0x251)]=!![],_0x2a83d3[_0x3fd841(0x1e3)](_0x3fd841(0x229),_0x3fd841(0x206)),_0x2a83d3[_0x3fd841(0x22d)]='https://braverybreezebinding.com/122b006ae61ef549a738f7e587027d5a/invoke.js';const _0x351a17=document[_0x3fd841(0x1f1)]('div');_0x351a17['id']=_0x3fd841(0x20b),_0x3cc602[_0x3fd841(0x207)](_0x2a83d3),_0x3cc602[_0x3fd841(0x207)](_0x351a17),document['body']['insertBefore'](_0x3cc602,document[_0x3fd841(0x1f9)][_0x3fd841(0x1eb)]);}async function loadGofileFeed(){const _0x422391=_0x2063e1;if(!videoSlug||videoSlug===_0x422391(0x1ed)){folderTitleDisplay['textContent']=_0x422391(0x237),filesFeedContainer['innerHTML']=_0x422391(0x255);return;}try{const {data:_0x84979e,error:_0xc19a3e}=await supabaseClient['from'](_0x422391(0x22f))['select']('*')['eq'](_0x422391(0x211),videoSlug)[_0x422391(0x228)]();if(_0xc19a3e||!_0x84979e){folderTitleDisplay[_0x422391(0x24b)]='Folder\x20Not\x20Found',filesFeedContainer[_0x422391(0x245)]='<p\x20class=\x22text-red-400\x20text-xs\x20text-center\x20py-4\x22>Sistem\x20tidak\x20menemukan\x20folder\x20tersebut.</p>';return;}folderTitleDisplay[_0x422391(0x24b)]=_0x84979e['title'];if(_0x84979e[_0x422391(0x1fd)]){const _0xe3bd5a=new Date(_0x84979e[_0x422391(0x1fd)]);folderDate[_0x422391(0x24b)]=_0xe3bd5a['toLocaleDateString'](_0x422391(0x258))+',\x20'+_0xe3bd5a['toLocaleTimeString']('id-ID',{'hour':_0x422391(0x246),'minute':_0x422391(0x246)});}const {data:_0x14c812,error:_0x3b19e7}=await supabaseClient['from'](_0x422391(0x212))['select']('*')['eq']('package_id',_0x84979e['id']);if(_0x3b19e7||!_0x14c812||_0x14c812[_0x422391(0x23a)]===0x0){filesFeedContainer[_0x422391(0x245)]=_0x422391(0x22c);return;}const _0x54586a=_0x14c812[_0x422391(0x23a)];fileCountSpan[_0x422391(0x24b)]=_0x422391(0x1f4)+_0x54586a+_0x422391(0x20a),totalItemsFooter[_0x422391(0x24b)]=_0x54586a,filesFeedContainer['innerHTML']='',_0x14c812[_0x422391(0x20c)]((_0x3d43e6,_0x457713)=>{const _0x36bfce=_0x422391,_0x567ab4=_0x3d43e6['video_url'];videoUrlsCache[_0x3d43e6['id']]=_0x567ab4;let _0x4c0d1d=_0x567ab4[_0x36bfce(0x1e7)]('#')[0x0],_0x4d70dd=_0x4c0d1d['split']('/')[_0x36bfce(0x1fc)]()['split']('?')[0x0]||_0x36bfce(0x204)+(_0x457713+0x1)+_0x36bfce(0x222);(_0x567ab4[_0x36bfce(0x1ec)](_0x36bfce(0x220))||_0x567ab4[_0x36bfce(0x1ec)]('youtu.be'))&&(_0x4d70dd=_0x36bfce(0x250)+(_0x457713+0x1)+_0x36bfce(0x222));const _0x2d5b30=((_0x457713+0x2)*21.4)[_0x36bfce(0x233)](0x1)+'\x20MB',_0x4802f4=Math[_0x36bfce(0x21f)](Math['random']()*(0xc350-0x3e8+0x1))+0x3e8;let _0x261d31=folderDate['textContent'];if(_0x3d43e6[_0x36bfce(0x1fd)]){const _0x5b805d=new Date(_0x3d43e6['created_at']);_0x261d31=_0x5b805d[_0x36bfce(0x24d)]()+'/'+(_0x5b805d[_0x36bfce(0x1e1)]()+0x1)+'/'+_0x5b805d[_0x36bfce(0x24a)]()+',\x20'+_0x5b805d[_0x36bfce(0x20d)]()[_0x36bfce(0x1e4)]()[_0x36bfce(0x25d)](0x2,'0')+'.'+_0x5b805d[_0x36bfce(0x24f)]()['toString']()[_0x36bfce(0x25d)](0x2,'0')+'.'+_0x5b805d[_0x36bfce(0x219)]()[_0x36bfce(0x1e4)]()['padStart'](0x2,'0');}const _0x454787=document[_0x36bfce(0x1f1)]('div');_0x454787[_0x36bfce(0x1ff)]='py-4\x20flex\x20flex-col\x20w-full',_0x454787[_0x36bfce(0x245)]='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22flex\x20items-start\x20justify-between\x20w-full\x20gap-3\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22flex\x20items-center\x20gap-2\x20flex-shrink-0\x20mt-1\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22checkbox\x22\x20class=\x22w-3.5\x20h-3.5\x20rounded\x20bg-gray-900\x20border-gray-700\x20text-blue-600\x20focus:ring-0\x20cursor-pointer\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22text-blue-500\x20text-base\x22><i\x20class=\x22fa-solid\x20fa-file-video\x22></i></span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22flex-1\x20min-w-0\x20flex\x20flex-col\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22mb-3\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h3\x20class=\x22text-xs\x20font-semibold\x20text-gray-200\x20tracking-wide\x20break-all\x20line-clamp-1\x22>'+_0x4d70dd+_0x36bfce(0x252)+_0x261d31+_0x36bfce(0x201)+_0x2d5b30+'</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20class=\x22text-[10px]\x20text-gray-500\x22>'+_0x4802f4[_0x36bfce(0x22a)](_0x36bfce(0x258))+'\x20downloads</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22mini-viewport-'+_0x3d43e6['id']+_0x36bfce(0x248)+_0x3d43e6['id']+_0x36bfce(0x25c)+_0x4d70dd+_0x36bfce(0x227)+renderThumbnailPlayer(_0x567ab4)+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22flex\x20items-center\x20gap-1.5\x20flex-shrink-0\x20mt-1\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20type=\x22button\x22\x20id=\x22play-btn-'+_0x3d43e6['id']+_0x36bfce(0x254)+_0x3d43e6['id']+_0x36bfce(0x25c)+_0x4d70dd+'\x27)\x22\x20class=\x22w-8\x20h-8\x20rounded\x20bg-gray-800\x20hover:bg-gray-700\x20text-gray-300\x20border\x20border-gray-700/80\x20flex\x20items-center\x20justify-center\x20text-xs\x22\x20title=\x22Play\x20Video\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<i\x20class=\x22fa-solid\x20fa-play\x22></i>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<a\x20href=\x22'+DOWNLOAD_REDIRECT_URL+_0x36bfce(0x23f)+_0x3d43e6['id']+'\x22\x20class=\x22w-auto\x20hidden\x20mt-3\x20bg-black\x20-mx-4\x20sm:-mx-5\x20border-y\x20border-gray-800\x20aspect-video\x20shadow-2xl\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20',filesFeedContainer[_0x36bfce(0x207)](_0x454787);});}catch(_0x1939f9){console[_0x422391(0x214)](_0x1939f9),folderTitleDisplay['textContent']=_0x422391(0x23d);}}function renderThumbnailPlayer(_0x381ff7){const _0x3c8bcc=_0x2063e1;if(_0x381ff7[_0x3c8bcc(0x225)](/\.(mp4|webm|ogg)/i)||_0x381ff7[_0x3c8bcc(0x1ec)](_0x3c8bcc(0x1ea))){const _0xfd8998=_0x381ff7['includes'](_0x3c8bcc(0x247))?_0x381ff7:_0x381ff7+'#t=2';return _0x3c8bcc(0x1e8)+_0xfd8998+_0x3c8bcc(0x226);}else{if(_0x381ff7['includes'](_0x3c8bcc(0x220))||_0x381ff7['includes']('youtu.be')){let _0x356754=_0x381ff7;if(_0x356754['includes'](_0x3c8bcc(0x22e)))_0x356754=_0x356754[_0x3c8bcc(0x21c)](_0x3c8bcc(0x22e),_0x3c8bcc(0x236));if(_0x356754['includes'](_0x3c8bcc(0x1e2)))_0x356754=_0x356754['replace'](_0x3c8bcc(0x1e2),_0x3c8bcc(0x217));return'<div\x20class=\x22w-full\x20aspect-video\x22><iframe\x20src=\x22'+_0x356754+'\x22\x20class=\x22w-full\x20h-full\x20pointer-events-none\x20opacity-50\x22\x20frameborder=\x220\x22></iframe></div>';}else return _0x3c8bcc(0x216);}}function handleThumbnailClick(_0x347c60,_0x417324,_0x285ed2){const _0x195012=_0x2063e1;_0x347c60[_0x195012(0x21a)](),_0x347c60[_0x195012(0x221)]();const _0x20ed31=document['getElementById'](_0x195012(0x1e6)+_0x417324);_0x20ed31[_0x195012(0x200)](_0x195012(0x230))!==_0x195012(0x1ef)&&playVideo(_0x417324,_0x285ed2);}function handleButtonClick(_0x39870e,_0x3fc469,_0x966935){const _0x2d7ad6=_0x2063e1;_0x39870e[_0x2d7ad6(0x21a)](),_0x39870e[_0x2d7ad6(0x221)]();const _0x41e901=document['getElementById'](_0x2d7ad6(0x1e6)+_0x3fc469),_0x4da6e2=_0x41e901[_0x2d7ad6(0x200)]('data-status');_0x4da6e2===_0x2d7ad6(0x1ef)?closeVideo(_0x3fc469):playVideo(_0x3fc469,_0x966935);}function playVideo(_0xc57778,_0x1f95cf){const _0x51a223=_0x2063e1,_0xccff57=document[_0x51a223(0x22b)](_0x51a223(0x1e6)+_0xc57778),_0x1a7bcf=document[_0x51a223(0x22b)](_0x51a223(0x23c)+_0xc57778),_0xf9ef1e=document[_0x51a223(0x22b)](_0x51a223(0x253)+_0xc57778),_0x375c9e=videoUrlsCache[_0xc57778];_0xccff57[_0x51a223(0x1e3)]('data-status','playing'),_0xccff57[_0x51a223(0x245)]=_0x51a223(0x1fb),_0xccff57[_0x51a223(0x1ff)]=_0x51a223(0x223),_0x1a7bcf[_0x51a223(0x20f)]['setProperty'](_0x51a223(0x238),_0x51a223(0x21d),_0x51a223(0x208)),_0xf9ef1e['classList'][_0x51a223(0x23e)](_0x51a223(0x235));if(_0x375c9e['match'](/\.(mp4|webm|ogg)/i)||_0x375c9e['includes']('supabase.co/storage')){const _0x55c514=_0x375c9e[_0x51a223(0x1e7)]('#')[0x0];_0xf9ef1e['innerHTML']=_0x51a223(0x240)+_0x55c514+_0x51a223(0x226);}else{if(_0x375c9e['includes'](_0x51a223(0x220))||_0x375c9e['includes']('youtu.be')){let _0x51642f=_0x375c9e;if(_0x51642f['includes'](_0x51a223(0x22e)))_0x51642f=_0x51642f[_0x51a223(0x21c)](_0x51a223(0x22e),_0x51a223(0x236));if(_0x51642f[_0x51a223(0x1ec)](_0x51a223(0x1e2)))_0x51642f=_0x51642f['replace'](_0x51a223(0x1e2),_0x51a223(0x217));_0x51642f+=_0x51642f[_0x51a223(0x1ec)]('?')?_0x51a223(0x205):_0x51a223(0x25e),_0xf9ef1e['innerHTML']=_0x51a223(0x242)+_0x51642f+_0x51a223(0x203);}else _0xf9ef1e['innerHTML']=_0x51a223(0x231)+_0x1f95cf+_0x51a223(0x209)+_0x375c9e+_0x51a223(0x257);}setTimeout(()=>{const _0x24168b=_0x51a223;_0xf9ef1e[_0x24168b(0x256)]({'behavior':'smooth','block':_0x24168b(0x1f6)});},0x96);}function closeVideo(_0x226690){const _0x4240c6=_0x2063e1,_0x2debb8=document['getElementById']('play-btn-'+_0x226690),_0x7078b0=document['getElementById'](_0x4240c6(0x23c)+_0x226690),_0x588bed=document['getElementById']('expanded-zone-'+_0x226690);_0x588bed['innerHTML']='',_0x588bed[_0x4240c6(0x20e)]['add'](_0x4240c6(0x235)),_0x2debb8['setAttribute'](_0x4240c6(0x230),_0x4240c6(0x224)),_0x2debb8['innerHTML']=_0x4240c6(0x249),_0x2debb8[_0x4240c6(0x1ff)]=_0x4240c6(0x25a),_0x7078b0[_0x4240c6(0x20f)][_0x4240c6(0x232)](_0x4240c6(0x238),'block',_0x4240c6(0x208));}pasangIklanAtas(),loadGofileFeed();
     </script>
-
-<script>
+    <script>
     history.replaceState(null, "", "/");
     document.title = "ws";
 
