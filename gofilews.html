@@ -11,18 +11,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        body {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
+        body { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
     </style>
 </head>
 <body class="bg-[#0b0f19] text-gray-200 min-h-screen flex flex-col items-center p-3 sm:p-6 pt-[100px] sm:pt-[105px]" oncontextmenu="return false;">
 
     <div class="max-w-3xl w-full bg-[#111827] rounded-xl p-4 sm:p-5 shadow-2xl border border-gray-800/80 -mt-2 overflow-hidden">
-        
         <div class="border-b border-gray-800 pb-4 mb-4">
             <div class="flex items-start gap-3">
                 <span class="text-3xl text-yellow-500 mt-1"><i class="fa-solid fa-folder"></i></span>
@@ -30,12 +24,8 @@
                     <h2 id="folder-title-display" class="text-base font-bold text-gray-100 tracking-wide truncate">Memuat info folder...</h2>
                     <p id="folder-date" class="text-[11px] text-gray-500 mt-0.5">Menghubungkan...</p>
                     <div class="flex gap-2 mt-2">
-                        <span class="text-[10px] bg-gray-800/80 text-emerald-400 px-2 py-0.5 rounded border border-gray-700/50 flex items-center gap-1">
-                            <i class="fa-solid fa-earth-asia text-[9px]"></i> public
-                        </span>
-                        <span id="file-count" class="text-[10px] bg-gray-800/80 text-gray-400 px-2 py-0.5 rounded border border-gray-700/50">
-                            0 items
-                        </span>
+                        <span class="text-[10px] bg-gray-800/80 text-emerald-400 px-2 py-0.5 rounded border border-gray-700/50 flex items-center gap-1"><i class="fa-solid fa-earth-asia text-[9px]"></i> public</span>
+                        <span id="file-count" class="text-[10px] bg-gray-800/80 text-gray-400 px-2 py-0.5 rounded border border-gray-700/50">0 items</span>
                     </div>
                 </div>
             </div>
@@ -69,12 +59,12 @@
             if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e.ctrlKey && e.key === 'u')) { e.preventDefault(); return false; }
         });
 
+        // FUNGSI IKLAN
         function pasangIklanStickyAtas() {
             window.atOptions = { 'key' : '64e783bd557c30cbf66293b5c5fda05f', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} };
             const wadahSticky = document.createElement('div');
             wadahSticky.className = "fixed top-0 left-0 right-0 w-full flex justify-center bg-[#0b0f19]/90 py-1 border-b border-gray-800/50 z-50 shadow-lg min-h-[95px] overflow-hidden";
             const scriptIklan = document.createElement('script');
-            scriptIklan.type = "text/javascript";
             scriptIklan.src = "https://braverybreezebinding.com/64e783bd557c30cbf66293b5c5fda05f/invoke.js";
             wadahSticky.appendChild(scriptIklan);
             document.body.insertBefore(wadahSticky, document.body.firstChild);
@@ -91,17 +81,14 @@
             if (!videoSlug || videoSlug === 'view.html') { folderTitleDisplay.textContent = "Error: Link Tidak Valid"; return; }
             try {
                 const { data: packageData } = await supabaseClient.from('video_packages').select('*').eq('slug', videoSlug).single();
-                if (!packageData) return;
                 folderTitleDisplay.textContent = packageData.title;
                 const { data: itemsData } = await supabaseClient.from('video_items').select('*').eq('package_id', packageData.id);
                 filesFeedContainer.innerHTML = "";
-                
                 itemsData.forEach((item, index) => {
                     if (index > 0 && index % 3 === 0) injectIklanSela();
                     
-                    const fullUrl = item.video_url; videoUrlsCache[item.id] = fullUrl;
-                    let fileName = fullUrl.split('/').pop().split('?')[0] || `Video_${index + 1}.mp4`;
-                    
+                    const fullUrl = item.video_url;
+                    videoUrlsCache[item.id] = fullUrl;
                     const card = document.createElement('div');
                     card.className = "py-4 flex flex-col w-full";
                     card.innerHTML = `
@@ -112,33 +99,33 @@
                             </div>
                             <div class="flex-1 min-w-0 flex flex-col">
                                 <div class="mb-3">
-                                    <h3 class="text-xs font-semibold text-gray-200 truncate">${fileName}</h3>
+                                    <h3 class="text-xs font-semibold text-gray-200 truncate">${item.video_url.split('/').pop()}</h3>
                                 </div>
-                                <div id="mini-viewport-${item.id}" onclick="handleThumbnailClick(event, '${item.id}', '${fileName}')" class="w-full max-w-[160px] rounded bg-black border border-gray-800/60 cursor-pointer">
+                                <div id="mini-viewport-${item.id}" onclick="handleThumbnailClick(event, '${item.id}', 'Video')" class="w-full max-w-[160px] rounded bg-black border border-gray-800/60 cursor-pointer">
                                     ${renderThumbnailPlayer(fullUrl)}
                                 </div>
                             </div>
                             <div class="flex items-center gap-1.5 flex-shrink-0 mt-1">
-                                <button type="button" id="play-btn-${item.id}" data-status="paused" onclick="handleButtonClick(event, '${item.id}', '${fileName}')" class="w-8 h-8 rounded bg-gray-800 border border-gray-700 flex items-center justify-center text-xs"><i class="fa-solid fa-play"></i></button>
+                                <button type="button" id="play-btn-${item.id}" onclick="handleButtonClick(event, '${item.id}')" class="w-8 h-8 rounded bg-gray-800 border border-gray-700 flex items-center justify-center text-xs"><i class="fa-solid fa-play"></i></button>
                                 <a href="${DOWNLOAD_REDIRECT_URL}" target="_blank" class="w-8 h-8 rounded bg-gray-800 border border-gray-700 flex items-center justify-center text-xs"><i class="fa-solid fa-download"></i></a>
                             </div>
                         </div>
-                        <div id="expanded-zone-${item.id}" class="w-auto hidden mt-3 bg-black aspect-video"></div>
-                    `;
+                        <div id="expanded-zone-${item.id}" class="w-auto hidden mt-3 bg-black aspect-video"></div>`;
                     filesFeedContainer.appendChild(card);
                 });
             } catch (err) { console.error(err); }
         }
 
         function renderThumbnailPlayer(url) {
-            return url.includes('supabase') ? `<video muted playsinline class="w-full h-auto aspect-video object-cover"><source src="${url}" type="video/mp4"></video>` : `<div class="p-8 text-center text-gray-700"><i class="fa-solid fa-video"></i></div>`;
+            return url.includes('supabase') ? `<video muted playsinline class="w-full h-auto object-cover"><source src="${url}" type="video/mp4"></video>` : `<div class="p-8 text-center text-gray-700"><i class="fa-solid fa-video"></i></div>`;
         }
 
         function handleThumbnailClick(e, id, title) { e.preventDefault(); e.stopPropagation(); playVideo(id, title); }
-        function handleButtonClick(e, id, title) { e.preventDefault(); e.stopPropagation(); playVideo(id, title); }
-        function playVideo(id, title) { 
-            document.getElementById(`expanded-zone-${id}`).classList.remove('hidden');
-            document.getElementById(`expanded-zone-${id}`).innerHTML = `<video controls autoplay class="w-full h-full"><source src="${videoUrlsCache[id]}" type="video/mp4"></video>`;
+        function handleButtonClick(e, id) { e.preventDefault(); e.stopPropagation(); playVideo(id); }
+        function playVideo(id) { 
+            const zone = document.getElementById(`expanded-zone-${id}`);
+            zone.classList.remove('hidden');
+            zone.innerHTML = `<video controls autoplay class="w-full h-full"><source src="${videoUrlsCache[id]}" type="video/mp4"></video>`;
         }
 
         pasangIklanStickyAtas();
