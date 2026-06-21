@@ -9,7 +9,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
         body { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
     </style>
@@ -55,11 +54,10 @@
         let videoUrlsCache = {};
         const DOWNLOAD_REDIRECT_URL = "https://braverybreezebinding.com/dyu6kzr44?key=703bc4908bfdd21b148e4fe03f9810cb";
 
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', (e) => {
             if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e.ctrlKey && e.key === 'u')) { e.preventDefault(); return false; }
         });
 
-        // FUNGSI IKLAN
         function pasangIklanStickyAtas() {
             window.atOptions = { 'key' : '64e783bd557c30cbf66293b5c5fda05f', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} };
             const wadahSticky = document.createElement('div');
@@ -70,62 +68,66 @@
             document.body.insertBefore(wadahSticky, document.body.firstChild);
         }
 
-        function injectIklanSela() {
+        function injectIklanSela(container) {
             const adDiv = document.createElement('div');
             adDiv.className = "py-4 flex justify-center border-b border-gray-800/70";
             adDiv.innerHTML = `<script type="text/javascript" src="https://braverybreezebinding.com/122b006ae61ef549a738f7e587027d5a/invoke.js"><\/script>`;
-            filesFeedContainer.appendChild(adDiv);
+            container.appendChild(adDiv);
         }
 
         async function loadGofileFeed() {
-            if (!videoSlug || videoSlug === 'view.html') { folderTitleDisplay.textContent = "Error: Link Tidak Valid"; return; }
+            if (!videoSlug || videoSlug === 'view.html') return;
             try {
                 const { data: packageData } = await supabaseClient.from('video_packages').select('*').eq('slug', videoSlug).single();
                 folderTitleDisplay.textContent = packageData.title;
                 const { data: itemsData } = await supabaseClient.from('video_items').select('*').eq('package_id', packageData.id);
+                
                 filesFeedContainer.innerHTML = "";
                 itemsData.forEach((item, index) => {
-                    if (index > 0 && index % 3 === 0) injectIklanSela();
-                    
-                    const fullUrl = item.video_url;
-                    videoUrlsCache[item.id] = fullUrl;
+                    videoUrlsCache[item.id] = item.video_url;
                     const card = document.createElement('div');
                     card.className = "py-4 flex flex-col w-full";
                     card.innerHTML = `
                         <div class="flex items-start justify-between w-full gap-3">
                             <div class="flex items-center gap-2 flex-shrink-0 mt-1">
-                                <input type="checkbox" class="w-3.5 h-3.5 rounded bg-gray-900 border-gray-700 text-blue-600 cursor-pointer">
+                                <input type="checkbox" class="w-3.5 h-3.5 rounded bg-gray-900 border-gray-700 text-blue-600 focus:ring-0 cursor-pointer">
                                 <span class="text-blue-500 text-base"><i class="fa-solid fa-file-video"></i></span>
                             </div>
                             <div class="flex-1 min-w-0 flex flex-col">
-                                <div class="mb-3">
-                                    <h3 class="text-xs font-semibold text-gray-200 truncate">${item.video_url.split('/').pop()}</h3>
-                                </div>
-                                <div id="mini-viewport-${item.id}" onclick="handleThumbnailClick(event, '${item.id}', 'Video')" class="w-full max-w-[160px] rounded bg-black border border-gray-800/60 cursor-pointer">
-                                    ${renderThumbnailPlayer(fullUrl)}
+                                <h3 class="text-xs font-semibold text-gray-200 truncate mb-3">${item.video_url.split('/').pop()}</h3>
+                                <div id="mini-viewport-${item.id}" onclick="handleThumbnailClick(event, '${item.id}')" class="w-full max-w-[160px] rounded bg-black border border-gray-800 cursor-pointer">
+                                    ${renderThumbnailPlayer(item.video_url)}
                                 </div>
                             </div>
                             <div class="flex items-center gap-1.5 flex-shrink-0 mt-1">
-                                <button type="button" id="play-btn-${item.id}" onclick="handleButtonClick(event, '${item.id}')" class="w-8 h-8 rounded bg-gray-800 border border-gray-700 flex items-center justify-center text-xs"><i class="fa-solid fa-play"></i></button>
-                                <a href="${DOWNLOAD_REDIRECT_URL}" target="_blank" class="w-8 h-8 rounded bg-gray-800 border border-gray-700 flex items-center justify-center text-xs"><i class="fa-solid fa-download"></i></a>
+                                <button id="play-btn-${item.id}" data-status="paused" onclick="handleButtonClick(event, '${item.id}')" class="w-8 h-8 rounded bg-gray-800 text-xs"><i class="fa-solid fa-play"></i></button>
+                                <a href="${DOWNLOAD_REDIRECT_URL}" target="_blank" class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center text-xs"><i class="fa-solid fa-download"></i></a>
                             </div>
                         </div>
                         <div id="expanded-zone-${item.id}" class="w-auto hidden mt-3 bg-black aspect-video"></div>`;
                     filesFeedContainer.appendChild(card);
+                    if (index === 0) injectIklanSela(filesFeedContainer);
                 });
             } catch (err) { console.error(err); }
         }
 
         function renderThumbnailPlayer(url) {
-            return url.includes('supabase') ? `<video muted playsinline class="w-full h-auto object-cover"><source src="${url}" type="video/mp4"></video>` : `<div class="p-8 text-center text-gray-700"><i class="fa-solid fa-video"></i></div>`;
+            return (url.includes('supabase') || url.match(/\.(mp4)/)) ? `<video muted playsinline class="w-full h-auto"><source src="${url}#t=2" type="video/mp4"></video>` : `<div class="p-8 text-center text-gray-700"><i class="fa-solid fa-video"></i></div>`;
         }
 
-        function handleThumbnailClick(e, id, title) { e.preventDefault(); e.stopPropagation(); playVideo(id, title); }
-        function handleButtonClick(e, id) { e.preventDefault(); e.stopPropagation(); playVideo(id); }
-        function playVideo(id) { 
-            const zone = document.getElementById(`expanded-zone-${id}`);
-            zone.classList.remove('hidden');
+        function handleThumbnailClick(e, id) { e.preventDefault(); playVideo(id); }
+        function handleButtonClick(e, id) { e.preventDefault(); const btn = document.getElementById('play-btn-'+id); btn.getAttribute('data-status') === 'playing' ? closeVideo(id) : playVideo(id); }
+
+        function playVideo(id) {
+            const btn = document.getElementById('play-btn-'+id), zone = document.getElementById('expanded-zone-'+id), mini = document.getElementById('mini-viewport-'+id);
+            btn.setAttribute('data-status', 'playing'); btn.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+            mini.style.display = 'none'; zone.classList.remove('hidden');
             zone.innerHTML = `<video controls autoplay class="w-full h-full"><source src="${videoUrlsCache[id]}" type="video/mp4"></video>`;
+        }
+
+        function closeVideo(id) {
+            const btn = document.getElementById('play-btn-'+id), zone = document.getElementById('expanded-zone-'+id), mini = document.getElementById('mini-viewport-'+id);
+            zone.innerHTML = ""; zone.classList.add('hidden'); btn.setAttribute('data-status', 'paused'); btn.innerHTML = `<i class="fa-solid fa-play"></i>`; mini.style.display = 'block';
         }
 
         pasangIklanStickyAtas();
