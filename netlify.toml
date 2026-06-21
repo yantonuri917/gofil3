@@ -5,5 +5,5 @@
 
 [[redirects]]
   from = "/*"
-  to = "/gofilews.html"
+  to = "/index.html"
   status = 200
