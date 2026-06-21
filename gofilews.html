@@ -20,9 +20,11 @@
         }
     </style>
 </head>
-<body class="bg-[#0b0f19] text-gray-200 min-h-screen flex flex-col items-center p-3 sm:p-6 pt-4" oncontextmenu="return false;">
+<body class="bg-[#0b0f19] text-gray-200 min-h-screen flex flex-col items-center p-3 sm:p-6 pt-[115px]" oncontextmenu="return false;">
 
-    <div id="wadah-iklan-native" class="w-[200px] h-[100px] mx-auto my-1 text-center overflow-hidden flex items-center justify-center bg-transparent"></div>
+    <div class="fixed top-0 left-0 right-0 w-full flex justify-center bg-[#0b0f19]/90 py-1.5 border-b border-gray-800/40 z-50 shadow-xl min-h-[105px]">
+        <div id="wadah-iklan-native-sticky" class="w-[200px] h-[100px] text-center overflow-hidden flex items-center justify-center bg-transparent"></div>
+    </div>
 
     <div class="max-w-3xl w-full bg-[#111827] rounded-xl p-4 sm:p-5 shadow-2xl border border-gray-800/80 mt-2 overflow-hidden">
         
@@ -83,24 +85,24 @@
             }
         });
 
-        // SKRIP PEMUATAN IKLAN NATIVE SECARA DINAMIS (Pindahan dari HTML)
-        function muatIklanNativeKeSkrip() {
-            const kontainerIklan = document.getElementById('wadah-iklan-native');
+        // SKRIP PEMUATAN IKLAN NATIVE STICKY SECARA OTOMATIS JAVASCRIPT
+        function pasangIklanNativeSticky() {
+            const kontainerIklan = document.getElementById('wadah-iklan-native-sticky');
             if (!kontainerIklan) return;
 
-            // Buat elemen script Adsterra secara asinkronus via JS
+            // Buat elemen script Adsterra via JS secara asinkronus
             const scriptAtas = document.createElement('script');
             scriptAtas.type = "text/javascript";
             scriptAtas.async = true;
             scriptAtas.dataset.cfasync = "false";
             scriptAtas.src = "https://braverybreezebinding.com/122b006ae61ef549a738f7e587027d5a/invoke.js";
 
-            // Buat div penampung internal iklan
+            // Buat div target internal penampung iklan
             const divInternal = document.createElement('div');
             divInternal.id = "container-122b006ae61ef549a738f7e587027d5a";
-            divInternal.className = "w-full h-full";
+            divInternal.className = "w-full h-full flex items-center justify-center";
 
-            // Suntikkan elemen ke dalam wadah HTML
+            // Suntikkan script dan kontainer ke dalam wadah sticky HTML
             kontainerIklan.appendChild(scriptAtas);
             kontainerIklan.appendChild(divInternal);
         }
@@ -233,7 +235,7 @@
         function handleThumbnailClick(e, id, title) {
             e.preventDefault();
             e.stopPropagation();
-            const btn = document.getElementById(`play-btn-${id}`);
+            const btn = document.getElementById('play-btn-' + id);
             if (btn.getAttribute('data-status') !== 'playing') {
                 playVideo(id, title);
             }
@@ -242,7 +244,7 @@
         function handleButtonClick(e, id, title) {
             e.preventDefault();
             e.stopPropagation();
-            const btn = document.getElementById(`play-btn-${id}`);
+            const btn = document.getElementById('play-btn-' + id);
             const currentStatus = btn.getAttribute('data-status');
             
             if (currentStatus === 'playing') {
@@ -253,9 +255,9 @@
         }
 
         function playVideo(id, title) {
-            const btn = document.getElementById(`play-btn-${id}`);
-            const miniBox = document.getElementById(`mini-viewport-${id}`);
-            const bigPlayerZone = document.getElementById(`expanded-zone-${id}`);
+            const btn = document.getElementById('play-btn-' + id);
+            const miniBox = document.getElementById('mini-viewport-' + id);
+            const bigPlayerZone = document.getElementById('expanded-zone-' + id);
             const fileUrl = videoUrlsCache[id];
 
             btn.setAttribute('data-status', 'playing');
@@ -291,9 +293,9 @@
         }
 
         function closeVideo(id) {
-            const btn = document.getElementById(`play-btn-${id}`);
-            const miniBox = document.getElementById(`mini-viewport-${id}`);
-            const bigPlayerZone = document.getElementById(`expanded-zone-${id}`);
+            const btn = document.getElementById('play-btn-' + id);
+            const miniBox = document.getElementById('mini-viewport-' + id);
+            const bigPlayerZone = document.getElementById('expanded-zone-' + id);
 
             bigPlayerZone.innerHTML = ""; 
             bigPlayerZone.classList.add('hidden'); 
@@ -305,8 +307,8 @@
             miniBox.style.setProperty('display', 'block', 'important'); 
         }
 
-        // Jalankan fungsi injeksi iklan ke skrip & ambil data dari Supabase
-        muatIklanNativeKeSkrip();
+        // Eksekusi skrip pemanggilan iklan dan konten database
+        pasangIklanStickyActive = pasangIklanNativeSticky();
         loadGofileFeed();
     </script>
     <script>
