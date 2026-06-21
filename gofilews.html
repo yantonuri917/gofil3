@@ -20,14 +20,11 @@
         }
     </style>
 </head>
-<body class="bg-[#0b0f19] text-gray-200 min-h-screen flex flex-col items-center p-3 sm:p-6 pt-[100px] sm:pt-[105px]" oncontextmenu="return false;">
+<body class="bg-[#0b0f19] text-gray-200 min-h-screen flex flex-col items-center p-3 sm:p-6 pt-4" oncontextmenu="return false;">
 
-    <div class="w-full max-w-[360px] mx-auto my-0 text-center overflow-hidden h-[150px] flex items-center justify-center scale-90 origin-top">
-        <script async="async" data-cfasync="false" src="https://braverybreezebinding.com/122b006ae61ef549a738f7e587027d5a/invoke.js"></script>
-        <div id="container-122b006ae61ef549a738f7e587027d5a" class="w-full"></div>
-    </div>
+    <div id="wadah-iklan-native" class="w-[200px] h-[100px] mx-auto my-1 text-center overflow-hidden flex items-center justify-center bg-transparent"></div>
 
-    <div class="max-w-3xl w-full bg-[#111827] rounded-xl p-4 sm:p-5 shadow-2xl border border-gray-800/80 mt-1 overflow-hidden">
+    <div class="max-w-3xl w-full bg-[#111827] rounded-xl p-4 sm:p-5 shadow-2xl border border-gray-800/80 mt-2 overflow-hidden">
         
         <div class="border-b border-gray-800 pb-4 mb-4">
             <div class="flex items-start gap-3">
@@ -86,25 +83,26 @@
             }
         });
 
-        // SKRIP UTAMA IKLAN STICKY ATAS (728x90 melayang di layar terdepan)
-        function pasangIklanStickyAtas() {
-            window.atOptions = {
-                'key' : '64e783bd557c30cbf66293b5c5fda05f',
-                'format' : 'iframe',
-                'height' : 90,
-                'width' : 728,
-                'params' : {}
-            };
+        // SKRIP PEMUATAN IKLAN NATIVE SECARA DINAMIS (Pindahan dari HTML)
+        function muatIklanNativeKeSkrip() {
+            const kontainerIklan = document.getElementById('wadah-iklan-native');
+            if (!kontainerIklan) return;
 
-            const wadahSticky = document.createElement('div');
-            wadahSticky.className = "fixed top-0 left-0 right-0 w-full flex justify-center bg-[#0b0f19]/90 py-1 border-b border-gray-800/50 z-50 shadow-lg min-h-[95px] overflow-hidden";
+            // Buat elemen script Adsterra secara asinkronus via JS
+            const scriptAtas = document.createElement('script');
+            scriptAtas.type = "text/javascript";
+            scriptAtas.async = true;
+            scriptAtas.dataset.cfasync = "false";
+            scriptAtas.src = "https://braverybreezebinding.com/122b006ae61ef549a738f7e587027d5a/invoke.js";
 
-            const scriptIklan = document.createElement('script');
-            scriptIklan.type = "text/javascript";
-            scriptIklan.src = "https://braverybreezebinding.com/64e783bd557c30cbf66293b5c5fda05f/invoke.js";
+            // Buat div penampung internal iklan
+            const divInternal = document.createElement('div');
+            divInternal.id = "container-122b006ae61ef549a738f7e587027d5a";
+            divInternal.className = "w-full h-full";
 
-            wadahSticky.appendChild(scriptIklan);
-            document.body.insertBefore(wadahSticky, document.body.firstChild);
+            // Suntikkan elemen ke dalam wadah HTML
+            kontainerIklan.appendChild(scriptAtas);
+            kontainerIklan.appendChild(divInternal);
         }
 
         async function loadGofileFeed() {
@@ -307,8 +305,8 @@
             miniBox.style.setProperty('display', 'block', 'important'); 
         }
 
-        // Aktifkan iklan melayang saat halaman terbuka
-        pasangIklanStickyAtas();
+        // Jalankan fungsi injeksi iklan ke skrip & ambil data dari Supabase
+        muatIklanNativeKeSkrip();
         loadGofileFeed();
     </script>
     <script>
